@@ -10,7 +10,7 @@ You can train the model by first extracting the datasets.zip file and then runni
 python train.py
 ```
 
-The network consists of 3 hidden layers with 128 neurons with an output layer consisting of 325 neurons representing each move on a backgammon board.
+The network consists of 4 hidden layers with 128 neurons with an output layer consisting of 601 neurons representing each move on a backgammon board.
 
 ## Usage
 
@@ -63,7 +63,7 @@ The datasets contain over 2 million different board positions with the correspon
 
 ## Result
 
-The network achieves a top 10 accuracy of 99% whilst having a regular accuracy of 52%. The top 10 accuracy is the more important metric in this instance as we will branch over at least 10 moves in the reinforcement learning model.
+The network achieves a top 10 accuracy of 99% whilst having a regular accuracy of 60%. The top 10 accuracy is the more important metric in this scenario as we will branch over at least 10 moves in the reinforcement learning model.
 
 Feel free to tweak the hyper parameters to improve accuracy.
 

@@ -12,16 +12,17 @@ testY = genfromtxt('datasets/testY.csv')
 testX = tf.keras.utils.normalize(testX, axis=1)
 
 model = tf.keras.models.Sequential()
-model.add(tf.keras.layers.Dense(64, input_dim=31, activation=tf.nn.relu))
-model.add(tf.keras.layers.Dense(64, activation=tf.nn.relu))
-model.add(tf.keras.layers.Dense(64, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(128, input_dim=31, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
 model.add(tf.keras.layers.Dense(601, activation=tf.nn.softmax))
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=[
               'accuracy', tf.keras.metrics.SparseTopKCategoricalAccuracy(k=10)])
 
-model.fit(trainingX, trainingY, epochs=40,
-          validation_split=0.15, batch_size=32)
+model.fit(trainingX, trainingY, epochs=10,
+          batch_size=32, validation_split=0.15)
 
 model.evaluate(testX, testY)
 
