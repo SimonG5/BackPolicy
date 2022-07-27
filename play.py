@@ -9,10 +9,30 @@ from backgammon.checker import Checker
 from backgammon.point import Point
 
 pygame.init()
+pygame.font.init()
 screen = pygame.display.set_mode((1150, 800))
 screen.fill((164, 116, 73))
 pygame.display.set_caption('Backgammon')
 model = tf.keras.models.load_model('models/network.model')
+
+
+def blit_text(surface, text, pos, font, color=pygame.Color('white')):
+    # 2D array where each row is a list of words.
+    words = [word.split(' ') for word in text.splitlines()]
+    space = font.size(' ')[0]  # The width of a space.
+    max_width, max_height = surface.get_size()
+    x, y = pos
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, 0, color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]  # Reset the x.
+                y += word_height  # Start on new row.
+            surface.blit(word_surface, (x, y))
+            x += word_width + space
+        x = pos[0]  # Reset the x.
+        y += word_height  # Start on new row.
 
 
 def main():
@@ -34,6 +54,9 @@ def main():
     points = pygame.sprite.Group()
     homes = pygame.sprite.Group()
     checkers = pygame.sprite.Group()
+    font = pygame.font.SysFont('Arial', 20)
+
+    bestMoves = "None"
 
     # load button images
     firstDice = TextBox(screen, 930, 250, 100, 40, fontSize=25,
@@ -42,6 +65,7 @@ def main():
     secondDice = TextBox(screen, 930, 300, 100, 40, fontSize=25,
                          borderColour=(255, 0, 0), textColour=(0, 200, 0),
                          radius=10, borderThickness=5)
+
     btnImage = pygame.image.load('ui/btn.png').convert_alpha()
 
     # create button instances
@@ -50,10 +74,10 @@ def main():
     for i in range(0, 24):
         points.add(Point(i, 0, "NONE"))
 
-    points.add(Point(24, 0, "WHITE"))
-    points.add(Point(25, 0, "BLACK"))
-    points.add(Point(26, 0, "WHITE"))
-    points.add(Point(27, 0, "BLACK"))
+    points.add(Point(24, 0, "BLACK"))
+    points.add(Point(25, 0, "WHITE"))
+    points.add(Point(26, 0, "BLACK"))
+    points.add(Point(27, 0, "WHITE"))
 
     for i in range(0, 2):
         checkers.add(Checker(0, i, "WHITE"))
@@ -92,10 +116,12 @@ def main():
             topTenVals = np.sort(predictions[0])[-10:]
             topTen = np.argsort(predictions[0])[-10:]
             print("------------------------")
+            screen.fill((164, 116, 73))
+            bestMoves = ""
             for i in range(9, -1, -1):
-                print(str(abs(i-10)) + ": " +
-                      str(outputMapping[topTen[i]]) + " : " + str(topTenVals[i]))
-                print("------------------------")
+                bestMoves += str(abs(i-10)) + ": " + str(outputMapping[topTen[i]]) + \
+                    " : " + str(topTenVals[i]) + "\n"
+            blit_text(screen, bestMoves, (920, 380), font)
 
         events = pygame.event.get()
 
@@ -127,7 +153,7 @@ def main():
                                     checker.rect = checker.image.get_rect()
                                     checker.snapY = 740 - 56 * point.checkers
                                     checker.snapX = point.rect.centerx
-                                if point.id > 11 and point.id < 24:
+                                elif point.id > 11 and point.id < 24:
                                     checker.image = pygame.image.load(
                                         'ui/white_checker.png')
                                     if checker.color == "BLACK":
@@ -136,25 +162,25 @@ def main():
                                     checker.rect = checker.image.get_rect()
                                     checker.snapY = 70 + 56 * point.checkers
                                     checker.snapX = point.rect.centerx
-                                elif point.id == 24:
+                                elif point.id == 25:
                                     checker.image = pygame.image.load(
                                         'ui/white_checker.png')
                                     checker.rect = checker.image.get_rect()
                                     checker.snapY = 450 + 56 * point.checkers
                                     checker.snapX = point.rect.centerx
-                                elif point.id == 25:
+                                elif point.id == 24:
                                     checker.image = pygame.image.load(
                                         'ui/black_checker.png')
                                     checker.rect = checker.image.get_rect()
                                     checker.snapY = 365 - 56 * point.checkers
                                     checker.snapX = point.rect.centerx
-                                elif point.id == 26:
+                                elif point.id == 27:
                                     checker.image = pygame.image.load(
                                         'ui/white_out.png')
                                     checker.rect = checker.image.get_rect()
                                     checker.snapX = point.rect.centerx
                                     checker.snapY = 60 + 18 * point.checkers
-                                elif point.id == 27:
+                                elif point.id == 26:
                                     checker.image = pygame.image.load(
                                         'ui/black_out.png')
                                     checker.rect = checker.image.get_rect()
@@ -181,7 +207,7 @@ def main():
                 checker.rect.center = [pos[0], pos[1]]
 
         pygame_widgets.update(events)
-        pygame.display.update()
+        pygame.display.flip()
         screen.blit(board, (0, 0))
         points.draw(screen)
         homes.draw(screen)
